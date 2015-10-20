@@ -3,6 +3,7 @@ import socket;
 import json;
 import serial
 import imu
+import thread
 
 # ATTENTION!!! The '\n' at the end of each network message is extremely IMPORTANT!!!
 
@@ -12,7 +13,7 @@ import imu
 HOST = '0.0.0.0'
 PORT_IN = 4243
 PORT_OUT = 4242
-CLIENT = '192.168.0.68'
+CLIENT = '192.168.0.36'
 
 # global set of registered listeners
 listeners = set()
@@ -49,7 +50,7 @@ def handle_incoming(conn, addr):
     print 'msg received from: ', addr, ';'
     msg = conn.recv(1024)
     while not msg.endswith('\n'):
-        msg = msg + con.recv(1024)
+        msg = msg + conn.recv(1024)
     print msg
 
     # extracts service name and prepares response
@@ -86,22 +87,35 @@ def server():
 
 
 # starts listening...
-register_listener(None, ('192.168.0.68', 4242), None)
+register_listener(None, (CLIENT, PORT_OUT), None)
 
-serial_port = serial.Serial('COM10', timeout=1)
+running = True
+
+def main():
+    # serial_port = serial.Serial('COM10', timeout=1)
+
+
+    sensor3.startStreaming()
+    sensor2.startStreaming()
+
+    while running:
+        q = sensor2.listen_streaming()
+        if q != None:
+            response = {'sensor': q[0], 'quaternion': {'x': q[1], 'y': q[2], 'z': q[3], 'w': q[4]}, 'timestamp': q[5]}
+            do_notify(response)
+
+
+serial_port = serial.Serial('/dev/tty.usbmodemfa131',timeout=1)
 sensor3 = imu.IMU(serial_port, 3)
 sensor2 = imu.IMU(serial_port, 2)
-
-sensor3.startStreaming()
-sensor2.startStreaming()
-
-for i in range(0,2500):
-    q = sensor2.listen_streaming()
-    if q != None:
-        response = {'sensor': q[0], 'quaternion': {'x': q[1], 'y': q[2], 'z': q[3], 'w': q[4]}}
-        do_notify(response)
-
+t = thread.start_new_thread(main,())
+i = raw_input('Parar?')
+running = False
 sensor2.stop_streaming()
 sensor3.stop_streaming()
 
-server()
+# server()
+
+serial_port.close()
+
+print 'adeus'
