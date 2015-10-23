@@ -1,3 +1,4 @@
+import glob
 import thread;
 import socket;
 import json;
@@ -105,7 +106,7 @@ def main():
             do_notify(response)
 
 
-serial_port = serial.Serial('/dev/tty.usbmodemfa131',timeout=1)
+serial_port = serial.Serial(glob.glob('/dev/tty.usbmodem*')[0],timeout=1,baudrate=115200)
 sensor3 = imu.IMU(serial_port, 3)
 sensor2 = imu.IMU(serial_port, 2)
 t = thread.start_new_thread(main,())
