@@ -94,7 +94,8 @@ running = True
 
 def main():
     # serial_port = serial.Serial('COM10', timeout=1)
-
+    sensor2.calibrate()
+    sensor3.calibrate()
 
     sensor3.startStreaming()
     sensor2.startStreaming()
