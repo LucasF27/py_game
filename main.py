@@ -117,6 +117,7 @@ sensor2.stop_streaming()
 sensor3.stop_streaming()
 
 # server()
+# teste git
 
 serial_port.close()
 
