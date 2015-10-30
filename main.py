@@ -14,7 +14,7 @@ import thread
 HOST = '0.0.0.0'
 PORT_IN = 4243
 PORT_OUT = 4242
-CLIENT = '192.168.0.36'
+CLIENT = '192.168.0.54'
 
 # global set of registered listeners
 listeners = set()
@@ -26,7 +26,7 @@ def do_notify(data):
     notify = {'type': 'NOTIFY', 'driver': 'org.unbiquitous.ubihealth.IMUDriver', 'eventKey': 'update'}
     notify['parameters'] = {'data': data}
     for listener in listeners:
-        print 'notify ', listener, ';'
+        # print 'notify ', listener, ';'
         c = socket.socket()
         c.connect(listener)
         c.send(json.dumps(notify) + '\n')
@@ -97,6 +97,9 @@ def main():
     sensor2.calibrate()
     sensor3.calibrate()
 
+    sensor2.reset_timestamp()
+    sensor3.reset_timestamp()
+
     sensor3.startStreaming()
     sensor2.startStreaming()
 
@@ -110,6 +113,7 @@ def main():
 serial_port = serial.Serial(glob.glob('/dev/tty.usbmodem*')[0],timeout=1,baudrate=115200)
 sensor3 = imu.IMU(serial_port, 3)
 sensor2 = imu.IMU(serial_port, 2)
+
 t = thread.start_new_thread(main,())
 i = raw_input('Parar?')
 running = False
