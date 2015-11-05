@@ -110,7 +110,7 @@ def main():
             do_notify(response)
 
 
-serial_port = serial.Serial(glob.glob('/dev/tty.usbmodem*')[0],timeout=1,baudrate=115200)
+serial_port = serial.Serial(imu.get_port(),timeout=1,baudrate=115200)
 sensor3 = imu.IMU(serial_port, 3)
 sensor2 = imu.IMU(serial_port, 2)
 
