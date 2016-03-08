@@ -12,9 +12,9 @@ import thread
 # HOST = '127.0.0.1'
 # HOST = '192.168.0.20'
 HOST = '0.0.0.0'
-PORT_IN = 4243
-PORT_OUT = 4242
-CLIENT = '192.168.0.54'
+PORT_IN = 8300
+PORT_OUT = 8300
+CLIENT = '192.168.0.65'
 
 # global set of registered listeners
 listeners = set()
@@ -23,8 +23,8 @@ listeners = set()
 # call this method to send a 'notify' message for all registered listeners
 def do_notify(data):
     print 'notify; data: ', data
-    notify = {'type': 'NOTIFY', 'driver': 'org.unbiquitous.ubihealth.IMUDriver', 'eventKey': 'update'}
-    notify['parameters'] = {'data': data}
+    notify = {'type': 'NOTIFY', 'driver': 'org.unbiquitous.ubihealth.IMUDriver', 'eventKey': 'change'}
+    notify['parameters'] = {'newData': data}
     for listener in listeners:
         # print 'notify ', listener, ';'
         c = socket.socket()
@@ -106,7 +106,11 @@ def main():
     while running:
         q = sensor2.listen_streaming()
         if q != None:
-            response = {'sensor': q[0], 'quaternion': {'x': q[1], 'y': q[2], 'z': q[3], 'w': q[4]}, 'timestamp': q[5]}
+            if q[0] == 2:
+                q[0] = 'arm'
+            if q[0] == 3:
+                q[0] = 'forearm'
+            response = {'id': q[0], 'quaternion': {'x': q[1], 'y': q[2], 'z': q[3], 'w': q[4]}, 'timestamp': q[5]}
             do_notify(response)
 
 
